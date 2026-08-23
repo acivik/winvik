@@ -48,6 +48,10 @@ Write-Host "##################### INSTALLED APPs #####################"
 #applications
 Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,LastWriteTime
 
+Write-Host "##################### Processes #####################"
+#process
+Get-Process | Where-Object { $_.Path } | Select-Object -Property Name, Id, Path, Description | Format-List
+
 Write-Host "##################### Credentials Hunting #####################"
 #powershell history
 Write-Host -ForegroundColor green "=====> PowerShell History"
