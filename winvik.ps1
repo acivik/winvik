@@ -21,7 +21,7 @@ Get-LocalGroup -PipelineVariable group | Get-LocalGroupMember | Select-Object @{
 #servcies
 Write-Host "##################### SERVICES #####################"
 Get-Service | Where-Object {$_.Status -eq "Running"} | ForEach-Object {
-	Write-Host "Service Name: $($_.Name)" -ForegroundColor Cyan }
+	Write-Host "Service Name: $($_.Name)" }
 
 #unquoted path
 Write-Host -ForegroundColor green "=====> Unquoted Path"
@@ -48,7 +48,7 @@ Write-Host "##################### INSTALLED APPs #####################"
 Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,LastWriteTime
 
 Write-Host "##################### PROCESSES #####################"
-Get-Process | Where-Object { $_.Path } | Select-Object -Property Name, Path | Format-Table -AutoSize | Out-String | Write-Host
+Get-CimInstance Win32_Process | Select-Object Name, ProcessId, ParentProcessId, CommandLine | Out-String | Write-Host
 
 Write-Host "##################### Credentials Hunting #####################"
 Write-Host -ForegroundColor green "=====> PowerShell History"
