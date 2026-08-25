@@ -11,7 +11,7 @@ whoami /all
 
 #users
 Write-Host -ForegroundColor green "=====> All Users"
-Get-LocalUser | Select-Object Name,Description,SID,PasswordLastSet,LastLogon
+Get-LocalUser | Select-Object Name, Description, SID, PasswordLastSet, LastLogon
 
 #groups
 Write-Host -ForegroundColor green "=====> All Groups"
