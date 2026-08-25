@@ -1,6 +1,9 @@
 Write-Host "##################### SYSTEM INFO #####################"
 Get-ComputerInfo -Property CsName,OsName,OsVersion,OsArchitecture,WindowsProductName
 
+Write-Host -ForegroundColor green "=====> Patches"
+Get-HotFix | Sort-Object -Descending -Property InstalledOn -ErrorAction SilentlyContinue | Select-Object HotfixID, Description, InstalledBy, InstalledOn | Format-Table -AutoSize | Out-String | Write-Host
+
 Write-Host "##################### USERS & GROUPS INFO #####################"
 #whoami
 Write-Host -ForegroundColor green "=====> WhoAmI"
@@ -16,7 +19,12 @@ Get-LocalGroup | Select-Object *
 
 #groupsmember
 Write-Host -ForegroundColor green "=====> Member Of Group"
-Get-LocalGroup -PipelineVariable group | Get-LocalGroupMember | Select-Object @{Name="GroupName"; Expression={$group.Name}}, Name, PrincipalSource, ObjectClass
+Get-LocalGroup | ForEach-Object {
+    $groupName = $_.Name
+    Write-Host "`nGroup Name: $groupName"
+    net localgroup "$groupName" 2>$null |
+        Where-Object { $_ -match '\S' -and $_ -notmatch '^(Alias|Comment|Members|--|The command)' }
+}
 
 #servcies
 Write-Host "##################### SERVICES #####################"
@@ -34,7 +42,7 @@ Get-Service | Where-Object { $_.Status -eq "Running" } | ForEach-Object {
     if ($binPathLine -match 'BINARY_PATH_NAME\s*:\s*(.+)') {
         $binPath = $matches[1].Trim()
 
-        # Unquoted VE .exe'den önce boşluk kontrolü
+        # Unquoted and spaces check
         if ($binPath -notmatch '^"' -and $binPath -match '^[A-Za-z]:\\.*\s.*\.exe') {
             Write-Host "`n[!] Unquoted Path: $serviceName" -ForegroundColor Red
             Write-Host "    $binPath" -ForegroundColor Yellow
@@ -49,6 +57,17 @@ Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)' | ft Parent,Name,Last
 
 Write-Host "##################### PROCESSES #####################"
 Get-CimInstance Win32_Process | Select-Object Name, ProcessId, ParentProcessId, CommandLine | Out-String | Write-Host
+
+Write-Host "##################### Network #####################"
+#ipinfo
+Write-Host -ForegroundColor green "=====> IP Info"
+ipconfig.exe /all
+Write-Host -ForegroundColor green "=====> Interfaces"
+Get-NetIPAddress | Select-Object -Property InterfaceAlias, IPAddress | Out-String | Write-Host
+#network activity
+Write-Host -ForegroundColor green "=====> Network Activity"
+$Procs = Get-Process | Group-Object -Property Id -AsHashTable -AsString
+Get-NetTCPConnection -State Listen, Established | Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State, OwningProcess,@{Name='Process'; Expression={ $Procs[[string]$_.OwningProcess].ProcessName }} | Format-Table -AutoSize
 
 Write-Host "##################### Credentials Hunting #####################"
 Write-Host -ForegroundColor green "=====> PowerShell History"
