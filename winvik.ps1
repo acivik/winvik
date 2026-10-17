@@ -32,7 +32,7 @@ Get-Service | Where-Object {$_.Status -eq "Running"} | ForEach-Object {
 	Write-Host "Service Name: $($_.Name)" }
 
 #unquoted path
-Write-Host -ForegroundColor green "\n=====> Unquoted Path"
+Write-Host -ForegroundColor green "=====> Unquoted Path"
 Get-Service | Where-Object { $_.Status -eq "Running" } | ForEach-Object {
     $serviceName = $_.Name
     $output = sc.exe qc $serviceName 2>&1
