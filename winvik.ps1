@@ -1,12 +1,12 @@
 Write-Host "##################### SYSTEM INFO #####################"
 Get-ComputerInfo -Property CsName,OsName,OsVersion,OsArchitecture,WindowsProductName
 
-Write-Host -ForegroundColor green "\n=====> Patches"
+Write-Host -ForegroundColor green "=====> Patches"
 Get-HotFix | Sort-Object -Descending -Property InstalledOn -ErrorAction SilentlyContinue | Select-Object HotfixID, Description, InstalledBy, InstalledOn | Format-Table -AutoSize | Out-String | Write-Host
 
 Write-Host "##################### USERS & GROUPS INFO #####################"
 #whoami
-Write-Host -ForegroundColor green "\n=====> WhoAmI"
+Write-Host -ForegroundColor green "=====> WhoAmI"
 whoami /all
 
 #users
@@ -14,11 +14,11 @@ Write-Host -ForegroundColor green "=====> All Users"
 Get-LocalUser | Select-Object Name, Description, SID, PasswordLastSet, LastLogon
 
 #groups
-Write-Host -ForegroundColor green "\n=====> All Groups"
+Write-Host -ForegroundColor green "=====> All Groups"
 Get-LocalGroup | Select-Object *
 
 #groupsmember
-Write-Host -ForegroundColor green "\n=====> Member Of Group"
+Write-Host -ForegroundColor green "=====> Member Of Group"
 Get-LocalGroup | ForEach-Object {
     $groupName = $_.Name
     Write-Host "`nGroup Name: $groupName"
@@ -59,7 +59,7 @@ Write-Host "##################### INSTALLED APPs #####################"
 #applications
 Get-ChildItem 'C:\Program Files', 'C:\Program Files (x86)', $env:APPDATA | Select-Object Parent,Name,LastWriteTime | Where-Object { $_.Name -notlike "*Windows*" -and $_.Name -notlike "*Microsoft*"} | Format-Table -AutoSize
 Write-Host "##################### PROCESSES #####################"
-Get-CimInstance Win32_Process | Select-Object Name, ProcessId, ParentProcessId, CommandLine | Out-String | Write-Host
+Get-CimInstance Win32_Process | Select-Object Name, ProcessId, ParentProcessId, CommandLine | Format-List | Out-String -Width 10000 | Write-Host
 
 Write-Host "##################### Network #####################"
 #ipinfo
